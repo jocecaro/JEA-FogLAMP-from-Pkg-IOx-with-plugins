@@ -1,7 +1,7 @@
 #
 # FogLAMP on IOx
 # 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Must setup timezone or apt-get hangs with prompt
 ENV TZ=America/New_York
@@ -10,13 +10,13 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install packages required for FogLAMP
 RUN apt update && \
     apt -y install wget rsyslog python3-dbus iputils-ping && \
-    wget --quiet https://s3.amazonaws.com/foglamp/debian/x86_64/foglamp-1.5.2-x86_64_ubuntu_16_04.tgz && \
-    tar -xzvf ./foglamp-1.5.2-x86_64_ubuntu_16_04.tgz && \
-    apt -y install `dpkg -I ./foglamp-1.5.2-x86_64_ubuntu_16_04/foglamp-1.5.2-x86_64.deb | awk '/Depends:/{print$2}' | sed 's/,/ /g'` && \
-    dpkg-deb -R ./foglamp-1.5.2-x86_64_ubuntu_16_04/foglamp-1.5.2-x86_64.deb foglamp-1.5.2-x86_64 && \
-    dpkg-deb -R ./foglamp-1.5.2-x86_64_ubuntu_16_04/foglamp-south-sinusoid-1.5.2.deb foglamp-south-sinusoid-1.5.2 && \
-    cp -r ./foglamp-1.5.2-x86_64/usr /. && \
-    cp -r ./foglamp-south-sinusoid-1.5.2/usr /. && \
+    wget --quiet https://s3.amazonaws.com/foglamp/debian/x86_64/foglamp-1.6.0-x86_64_ubuntu_18_04.tgz && \
+    tar -xzvf ./foglamp-1.6.0-x86_64_ubuntu_18_04.tgz && \
+    apt -y install `dpkg -I ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-1.6.0-x86_64.deb | awk '/Depends:/{print$2}' | sed 's/,/ /g'` && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-1.6.0-x86_64.deb foglamp-1.6.0-x86_64 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-sinusoid-1.6.0.deb foglamp-south-sinusoid-1.6.0 && \
+    cp -r ./foglamp-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-south-sinusoid-1.6.0/usr /. && \
     mv /usr/local/foglamp/data.new /usr/local/foglamp/data && \
     cd /usr/local/foglamp && \
     ./scripts/certificates foglamp 365 && \

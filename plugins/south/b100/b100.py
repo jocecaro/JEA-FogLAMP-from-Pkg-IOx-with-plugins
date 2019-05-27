@@ -47,9 +47,9 @@ _DEFAULT_CONFIG = {
         'order': "1"
     },
     'pollInterval': {
-        'description': 'The interval between poll calls to the device poll routine, expressed in milliseconds.',
+        'description': 'The interval between poll calls to the device poll routine, expressed in seconds.',
         'type': 'integer',
-        'default': '60000',
+        'default': '15',
         'order': '2'
     },
     'address': {
@@ -71,6 +71,9 @@ _LOGGER = logger.setup(__name__, level=logging.INFO)
 
 UNIT = 1
 """  The slave unit this request is targeting """
+
+pollCounter = 0
+""" Counts how many polls have occurred since plugin last sent readings """
 
 def plugin_info():
     """ Returns information about the plugin.
@@ -109,32 +112,39 @@ def plugin_poll(handle):
     Available for poll mode only.
 
     Args:
-        handle: handle returned by the plugin initialisation call
+        handle: handle returned by the plugin initialisation call - i.e. "the config"
     Returns:
         returns a reading in a JSON document, as a Python dict, if it is available
         None - If no reading is available
     Raises:
         DataRetrievalError
     """
+    global pollCounter
+    """ We don't want to send readings on every poll so we keep track """
 
-    try:
-        source_address = handle['address']['value']
-        source_port = int(handle['port']['value'])
+    if pollCounter == 0:
+        try:
+            
+            source_address = handle['address']['value']
+            source_port = int(handle['port']['value'])
+            """ Address and Port are set in the plugin config """
 
-        readings = get_b100_readings(source_address,source_port)
+            readings = get_b100_readings(source_address,source_port)
 
-        wrapper = {
-            'asset': handle['assetName']['value'],
-            'timestamp': utils.local_timestamp(),
-            'key': str(uuid.uuid4()),
-            'readings': readings
-        }
-
-    except Exception as ex:
-        raise exceptions.DataRetrievalError(ex)
+            wrapper = {
+                'asset': handle['assetName']['value'],
+                'timestamp': utils.local_timestamp(),
+                'key': str(uuid.uuid4()),
+                'readings': readings
+            }
+        except Exception as ex:
+            raise exceptions.DataRetrievalError(ex)
+        else:
+            pollCounter = int(handle['pollInterval']['value'])
+            """ reset the pollcounter to the pollInterval plugin setting """
+            return wrapper
     else:
-        return wrapper
-
+        pollCounter -= 1
 
 def plugin_reconfigure(handle, new_config):
     """ Reconfigures the plugin
