@@ -15,8 +15,10 @@ RUN apt update && \
     apt -y install `dpkg -I ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-1.6.0-x86_64.deb | awk '/Depends:/{print$2}' | sed 's/,/ /g'` && \
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-1.6.0-x86_64.deb foglamp-1.6.0-x86_64 && \
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-sinusoid-1.6.0.deb foglamp-south-sinusoid-1.6.0 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-service-notification-1.6.0-x86_64.deb foglamp-service-notification-1.6.0-x86_64 && \
     cp -r ./foglamp-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-south-sinusoid-1.6.0/usr /. && \
+    cp -r ./foglamp-service-notification-1.6.0-x86_64/usr /. && \
     mv /usr/local/foglamp/data.new /usr/local/foglamp/data && \
     cd /usr/local/foglamp && \
     ./scripts/certificates foglamp 365 && \
