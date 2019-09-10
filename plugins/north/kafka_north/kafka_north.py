@@ -3,7 +3,6 @@
 """ Kafka North plugin"""
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
-# import aiohttp
 import asyncio
 import json
 import uuid
@@ -19,7 +18,6 @@ __version__ = "${VERSION}"
 
 _LOGGER = logger.setup(__name__)
 #_LOGGER.setLevel(logging.INFO)
-
 
 
 _CONFIG_CATEGORY_NAME = "KAFKA"
@@ -39,11 +37,18 @@ _DEFAULT_CONFIG = {
         'order': '1',
         'displayName': 'Boostrap Server'
     },
+    'ssl_password': {
+        'description': 'SSL key password for kafka certificate',
+        'type': 'string',
+        'default': 'password',
+        'order': '2',
+        'displayName': 'SSL Password'
+    },
     'kafka_topic': {
         'description': 'Kafka Topic',
         'type': 'string',
         'default': 'iot-readings',
-        'order': '2',
+        'order': '3',
         'displayName': 'Kafka Topic'
     },
     "source": {
@@ -51,21 +56,21 @@ _DEFAULT_CONFIG = {
          "type": "enumeration",
          "default": "readings",
          "options": [ "readings", "statistics" ],
-         'order': '3',
+         'order': '4',
          'displayName': 'Source'
     },
     "applyFilter": {
         "description": "Should filter be applied before processing data",
         "type": "boolean",
         "default": "false",
-        'order': '4',
+        'order': '5',
         'displayName': 'Apply Filter'
     },
     "filterRule": {
         "description": "JQ formatted filter to apply (only applicable if applyFilter is True)",
         "type": "string",
         "default": ".[]",
-        'order': '5',
+        'order': '6',
         'displayName': 'Filter Rule'
     }
 }
@@ -154,7 +159,12 @@ class KafkaNorthPlugin(object):
         num_count = 0
         try:
             producer = KafkaProducer(bootstrap_servers=config["bootstrap_servers"]["value"], 
-                api_version=(0, 11),
+                security_protocol='SSL',
+                ssl_cafile='/etc/ssl/certs/jearootca.cer',
+                ssl_certfile='/etc/ssl/certs/TestKafka.pem',
+                ssl_keyfile='/etc/ssl/certs/TestKafka.pem',
+                ssl_password=config["ssl_password"]["value"],
+                #api_version=(0, 11),
                 value_serializer=lambda x: json.dumps(x).encode('utf-8'))
 
             _LOGGER.info(f'Using Boostrap Server: {config["bootstrap_servers"]["value"]} Topic: {config["kafka_topic"]["value"]}')

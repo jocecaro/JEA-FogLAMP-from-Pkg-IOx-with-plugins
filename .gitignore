@@ -4,3 +4,5 @@ IOx/package.tar
 IOx/.DS_Store
 ioxclient
 .DS_Store
+*.cer
+*.pem

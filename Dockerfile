@@ -20,6 +20,10 @@ RUN apt update && \
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-service-notification-1.6.0-x86_64.deb foglamp-service-notification-1.6.0-x86_64 && \
     # Notification plugins
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-notify-python35-1.6.0-x86_64.deb foglamp-notify-python35-1.6.0-x86_64 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-notify-email-1.6.0-x86_64.deb foglamp-notify-email-1.6.0-x86_64 && \
+    # Rule plugins
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-rule-simple-expression-1.6.0-x86_64.deb foglamp-rule-simple-expression-1.6.0-x86_64 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-rule-outofbound-1.6.0-x86_64.deb foglamp-rule-outofbound-1.6.0-x86_64 && \
     # North
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-north-httpc-1.6.0-x86_64.deb foglamp-north-httpc-1.6.0-x86_64 && \
     # South
@@ -29,8 +33,10 @@ RUN apt update && \
     # Copy extracted package files to destination directories
     cp -r ./foglamp-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-service-notification-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-rule-simple-expression-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-rule-outofbound-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-notify-python35-1.6.0-x86_64/usr /. && \
-    cp -r ./foglamp-notify-python35-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-notify-email-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-north-httpc-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-south-sinusoid-1.6.0/usr /. && \
     cp -r ./foglamp-south-benchmark-1.6.0-x86_64/usr /. && \
@@ -52,10 +58,13 @@ COPY foglamp.sh foglamp.sh
 RUN chown root:root /usr/local/foglamp/foglamp.sh \
     && chmod 777 /usr/local/foglamp/foglamp.sh
 
-RUN pip3 install pymodbus
+RUN pip3 install pymodbus kafka
 
 RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/south/b100
 COPY plugins/south/b100 /usr/local/foglamp/python/foglamp/plugins/south/b100
+
+RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/south/selrtac
+COPY plugins/south/selrtac /usr/local/foglamp/python/foglamp/plugins/south/selrtac
 
 RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
 COPY plugins/north/kafka_north /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
