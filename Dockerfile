@@ -19,20 +19,21 @@ RUN apt update && \
     # Extract files for Notification Service
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-service-notification-1.6.0-x86_64.deb foglamp-service-notification-1.6.0-x86_64 && \
     # Notification plugins
-    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-notify-python35-1.6.0-x86_64_ubuntu_18_04.deb foglamp-notify-python35-1.6.0-x86_64_ubuntu_18_04 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-notify-python35-1.6.0-x86_64.deb foglamp-notify-python35-1.6.0-x86_64 && \
     # North
-    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-north-httpc-1.6.0-x86_64_ubuntu_18_04.deb foglamp-north-httpc-1.6.0-x86_64_ubuntu_18_04 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-north-httpc-1.6.0-x86_64.deb foglamp-north-httpc-1.6.0-x86_64 && \
     # South
     dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-sinusoid-1.6.0.deb foglamp-south-sinusoid-1.6.0 && \
-    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-benchmark-1.6.0-x86_64_ubuntu_18_04.deb foglamp-south-benchmark-1.6.0-x86_64_ubuntu_18_04 && \
-    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-systeminfo-1.6.0.deb foglamp-south-systeminfo-x86_64_ubuntu_18_04 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-benchmark-1.6.0-x86_64.deb foglamp-south-benchmark-1.6.0-x86_64 && \
+    dpkg-deb -R ./foglamp-1.6.0-x86_64_ubuntu_18_04/foglamp-south-systeminfo-1.6.0.deb foglamp-south-systeminfo-1.6.0 && \
     # Copy extracted package files to destination directories
     cp -r ./foglamp-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-service-notification-1.6.0-x86_64/usr /. && \
-    cp -r ./foglamp-notify-python35-1.6.0-x86_64_ubuntu_18_04/usr /. && \
-    cp -r ./foglamp-north-httpc-1.6.0-x86_64_ubuntu_18_04/usr /. && \
+    cp -r ./foglamp-notify-python35-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-notify-python35-1.6.0-x86_64/usr /. && \
+    cp -r ./foglamp-north-httpc-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-south-sinusoid-1.6.0/usr /. && \
-    cp -r ./foglamp-south-benchmark-1.6.0-x86_64_ubuntu_18_04/usr /. && \
+    cp -r ./foglamp-south-benchmark-1.6.0-x86_64/usr /. && \
     cp -r ./foglamp-south-systeminfo-1.6.0/usr /. && \
     # move blank database to foglamp data directory
     mv /usr/local/foglamp/data.new /usr/local/foglamp/data && \
@@ -55,6 +56,9 @@ RUN pip3 install pymodbus
 
 RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/south/b100
 COPY plugins/south/b100 /usr/local/foglamp/python/foglamp/plugins/south/b100
+
+RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
+COPY plugins/north/kafka_north /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
 
 VOLUME /usr/local/foglamp/data
 
