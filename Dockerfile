@@ -58,7 +58,7 @@ COPY foglamp.sh foglamp.sh
 RUN chown root:root /usr/local/foglamp/foglamp.sh \
     && chmod 777 /usr/local/foglamp/foglamp.sh
 
-RUN pip3 install pymodbus kafka
+RUN pip3 install pymodbus kafka-python asyncio
 
 RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/south/b100
 COPY plugins/south/b100 /usr/local/foglamp/python/foglamp/plugins/south/b100
@@ -69,10 +69,14 @@ COPY plugins/south/selrtac /usr/local/foglamp/python/foglamp/plugins/south/selrt
 RUN mkdir -p /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
 COPY plugins/north/kafka_north /usr/local/foglamp/python/foglamp/plugins/north/kafka_north
 
+# Copy certs used by Kafka plugin
+RUN mkdir -p /etc/ssl/certs
+COPY jea-certs /etc/ssl/certs
+
 VOLUME /usr/local/foglamp/data
 
 # FogLAMP API port
-EXPOSE 8081 1995 502
+EXPOSE 8081 1995 502 23
 
 # start rsyslog, FogLAMP, and tail syslog
 CMD ["bash","/usr/local/foglamp/foglamp.sh"]

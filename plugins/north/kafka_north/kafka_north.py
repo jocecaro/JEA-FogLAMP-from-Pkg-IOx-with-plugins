@@ -7,6 +7,8 @@ import asyncio
 import json
 import uuid
 import logging
+import os.path
+from os import path
 
 from foglamp.common import logger
 from foglamp.plugins.north.common.common import *
@@ -16,9 +18,7 @@ __copyright__ = "Copyright (c) 2019 Raesemann Enterprises"
 __license__ = "Apache 2.0"
 __version__ = "${VERSION}"
 
-_LOGGER = logger.setup(__name__)
-#_LOGGER.setLevel(logging.INFO)
-
+_LOGGER = logger.setup(__name__, level=logging.INFO)
 
 _CONFIG_CATEGORY_NAME = "KAFKA"
 _CONFIG_CATEGORY_DESCRIPTION = "Kafka North Plugin"
@@ -91,16 +91,21 @@ def plugin_init(data):
     global kafka_north, config
     kafka_north = KafkaNorthPlugin()
     config = data
-    _LOGGER.info(f'Initializing plugin with boostrap servers: {config["bootstrap_servers"]["value"]} and topic: {config["kafka_topic"]["value"]}')
-
-
+    
+    ssl_cafile_path = '/etc/ssl/certs/jearootca.cer'
+    pem_file_path = '/etc/ssl/certs/testkafka.pem'
+    
+    _LOGGER.info(f'Initializing plugin with boostrap servers: {config["bootstrap_servers"]["value"]} and topic: {config["kafka_topic"]["value"]} password: {config["ssl_password"]["value"]}')
+    _LOGGER.info(f'Testing SSL cafile exists: {str(path.exists(ssl_cafile_path))}')
+    _LOGGER.info(f'Testing SSL pemfile exists: {str(path.exists(pem_file_path))}')
+        
     return config
 
 
 async def plugin_send(data, payload, stream_id):
     # stream_id (log?)
     try:
-        _LOGGER.info(f'Kafka North Python - plugin_send: {stream_id}')
+        # _LOGGER.info(f'Kafka North Python - plugin_send: {stream_id}')
         is_data_sent, new_last_object_id, num_sent = await kafka_north.send_payloads(payload)
     except asyncio.CancelledError as ex:
         _LOGGER.exception(f'Exception occurred in plugin_send: {ex}')
@@ -123,7 +128,8 @@ class KafkaNorthPlugin(object):
 
     def __init__(self):
         self.event_loop = asyncio.get_event_loop()
-
+        
+            
     def kafka_error(self, error):
         _LOGGER.error(f'Kafka error: {error}')
 
@@ -146,7 +152,7 @@ class KafkaNorthPlugin(object):
                 payload_block.append(read)
 
             num_sent = await self._send_payloads(payload_block)
-            _LOGGER.info('payloads sent: {num_sent}')
+            _LOGGER.info(f'payloads sent: {num_sent}')
             is_data_sent = True
         except Exception as ex:
             _LOGGER.exception("Data could not be sent, %s", str(ex))
@@ -158,26 +164,28 @@ class KafkaNorthPlugin(object):
 
         num_count = 0
         try:
-            producer = KafkaProducer(bootstrap_servers=config["bootstrap_servers"]["value"], 
+            ssl_cafile_path = '/etc/ssl/certs/jearootca.cer'
+            pem_file_path = '/etc/ssl/certs/testkafka.pem'
+            password=config['ssl_password']['value']
+            bootstrap_servers = config["bootstrap_servers"]["value"]
+            
+            producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
                 security_protocol='SSL',
-                ssl_cafile='/etc/ssl/certs/jearootca.cer',
-                ssl_certfile='/etc/ssl/certs/TestKafka.pem',
-                ssl_keyfile='/etc/ssl/certs/TestKafka.pem',
-                ssl_password=config["ssl_password"]["value"],
-                #api_version=(0, 11),
+                ssl_cafile=ssl_cafile_path,
+                ssl_certfile=pem_file_path,
+                ssl_keyfile=pem_file_path,
+                ssl_password=password,
                 value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-
-            _LOGGER.info(f'Using Boostrap Server: {config["bootstrap_servers"]["value"]} Topic: {config["kafka_topic"]["value"]}')
 
             await self._send(producer, payload_block)
         except Exception as ex:
-            _LOGGER.exception(f'Exception sending payloads: {ex}')
+            _LOGGER.exception(f'Exception sending payload: {ex}')
         else: 
             num_count += len(payload_block)
         return num_count
 
     async def _send(self, producer, payload):
         """ Send the payload, using provided producer """
-       
-        producer.send(config["kafka_topic"]["value"], value=payload).add_errback(self.kafka_error)
+        topic = config["kafka_topic"]["value"]
+        producer.send(topic, value=payload).add_errback(self.kafka_error)
         producer.flush()
