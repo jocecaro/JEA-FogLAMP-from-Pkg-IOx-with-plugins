@@ -138,7 +138,7 @@ def get_sel_readings(address, port,
         if modbus_client_connected:
             _LOGGER.info('Modbus TCP Client is connected. %s:%df', address, port)
         else:
-            LOGGER.execption('Modbus TCP Connection failed!')
+            _LOGGER.execption('Modbus TCP Connection failed!')
     except:
         _LOGGER.warn('Failed to connect! Modbus TCP Host %s on port %d', address, port)
 
@@ -201,14 +201,13 @@ def get_sel_readings(address, port,
     # readings object including static meta-data, if desired.        
 
     readings = {
-                'IOT:Twr.Floor5.InnoLab.B100.ltc_tank_temp': b100_ltc_tank_temp,
-                'IOT:Twr.Floor5.InnoLab.B100.top_oil_temp': b100_top_oil_temp,
-                'IOT:Twr.Floor5.InnoLab.Qualitrol.ltc_tank_temp': qualitrol_ltc_tank_temp,
-                'IOT:Twr.Floor5.InnoLab.Qualitrol.top_oil_temp': qualitrol_top_oil_temp,
-                'IOT:Twr.Floor5.InnoLab.Qualitrol.tap_change_position': qualitrol_tap_changer_position
+                'B100.ltc_tank_temp': b100_ltc_tank_temp,
+                'B100.top_oil_temp': b100_top_oil_temp,
+                'Qualitrol.ltc_tank_temp': qualitrol_ltc_tank_temp,
+                'Qualitrol.top_oil_temp': qualitrol_top_oil_temp,
+                'Qualitrol.tap_change_position': qualitrol_tap_changer_position
         }
     
-
     # Return the readings object to the FogLAMP function plugin_poll function that called us.
     return readings
 

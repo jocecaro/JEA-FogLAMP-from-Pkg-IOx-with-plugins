@@ -3,7 +3,7 @@ descriptor-schema-version: "2.2"
 info:
   name: JEA-FogLAMP-Docker-IOx
   description: "IOx Docker running FogLAMP with JEA plugins"
-  version: "1.6.0"
+  version: "1.7.0"
   author-link: "https://raesemann.com"
   author-name: "Rob Raesemann"
 app:
